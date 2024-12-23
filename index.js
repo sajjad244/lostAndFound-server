@@ -40,6 +40,12 @@ async function run() {
             res.send(result);
         })
 
+        // ? get all data from mongodb
+        app.get('/allItems', async (req, res) => {
+            const result = await lostFoundCollection.find({}).toArray();
+            res.send(result);
+        })
+
 
 
 
