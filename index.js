@@ -27,8 +27,18 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
+        // making collections of mongodb
+        const db = client.db("lost_and_found_DB");
+        const lostFoundCollection = db.collection("lost_found");
+        // making collections of mongodb
 
-
+        // ? save data in mongodb {received from client}
+        app.post('/addItems', async (req, res) => {
+            const lostFound = req.body;
+            console.log('adding new lostFound', lostFound);
+            const result = await lostFoundCollection.insertOne(lostFound);
+            res.send(result);
+        })
 
 
 
