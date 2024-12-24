@@ -32,7 +32,7 @@ async function run() {
         const lostFoundCollection = db.collection("lost_found");
         // making collections of mongodb
 
-        // ? save data in mongodb {received from client} // ?
+        // ? save data in mongodb {received from client}(by insertOne) // ?
         app.post('/addItems', async (req, res) => {
             const lostFound = req.body;
             console.log('adding new lostFound', lostFound);
@@ -40,13 +40,13 @@ async function run() {
             res.send(result);
         })
 
-        // ? get all data from mongodb___[allItems]
+        // ? get all data from mongodb(by find({}).toArray();)___[allItems]
         app.get('/allItems', async (req, res) => {
             const result = await lostFoundCollection.find({}).toArray();
             res.send(result);
         })
 
-        // ? get data using email [specific user thats why using params] from mongodb___{get_email}
+        // ? get data using email [specific user thats why using params(by find)] from mongodb___{get_email}
         app.get('/myItems/:email', async (req, res) => {
             const email = req.params.email;
             const query = { email: email };
@@ -54,7 +54,7 @@ async function run() {
             res.send(result);
         })
 
-        // ? delete post from database for myItems [using id params]____{delete_id}
+        // ? delete post from database for myItems [using id params ( by deleteOne)]____{delete_id}
 
         app.delete('/myItems/:id', async (req, res) => {
             const id = req.params.id;
@@ -62,6 +62,16 @@ async function run() {
             const result = await lostFoundCollection.deleteOne(query);
             res.send(result);
         })
+
+        // ? update post from database for myItems [using id params ( by findOne)]____{update_id}
+        // find single data for update
+        app.get('/update/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await lostFoundCollection.findOne(query);
+            res.send(result);
+        })
+
 
 
 
