@@ -46,6 +46,14 @@ async function run() {
             res.send(result);
         })
 
+        // ? get data using email
+        app.get('/myItems', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const result = await lostFoundCollection.find(query).toArray();
+            res.send(result);
+        })
+
 
 
 
