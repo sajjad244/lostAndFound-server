@@ -87,23 +87,21 @@ async function run() {
         })
 
 
-        // ? save recovered data in mongodb {received from client}(by insertOne) // ?
-
+        // ? save recovered data in mongodb {received from client}(by insertOne) // ?  (;_)
+        // received from client
         app.post('/addRecovered', async (req, res) => {
             const recovered = req.body;
             const result = await recoveredCollection.insertOne(recovered);
             res.send(result);
         })
 
+        // get data
+        app.get('/allRecovered', async (req, res) => {
+            const result = await recoveredCollection.find({}).toArray();
+            res.send(result);
+        })
 
-
-
-
-
-
-
-
-        // ? save recovered data in mongodb {received from client}(by insertOne) // ?
+        // ? save recovered data in mongodb {received from client}(by insertOne) // ?  (;_)
 
 
 
