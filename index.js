@@ -30,6 +30,7 @@ async function run() {
         // making collections of mongodb
         const db = client.db("lost_and_found_DB");
         const lostFoundCollection = db.collection("lost_found");
+        const recoveredCollection = db.collection("recovered");
         // making collections of mongodb
 
         // ? save data in mongodb {received from client}(by insertOne) // ?
@@ -71,6 +72,7 @@ async function run() {
             res.send(result);
         })
         // update single data specified by id {it will take 3 items id, updated data, options}
+        // {update_id} !!! id,updated,options [post and put almost same just add this 3 extra items & specify the route and single data]
 
         app.put('/updateItem/:id', async (req, res) => {
             const id = req.params.id;
@@ -84,6 +86,24 @@ async function run() {
             res.send(result);
         })
 
+
+        // ? save recovered data in mongodb {received from client}(by insertOne) // ?
+
+        app.post('/addRecovered', async (req, res) => {
+            const recovered = req.body;
+            const result = await recoveredCollection.insertOne(recovered);
+            res.send(result);
+        })
+
+
+
+
+
+
+
+
+
+        // ? save recovered data in mongodb {received from client}(by insertOne) // ?
 
 
 
