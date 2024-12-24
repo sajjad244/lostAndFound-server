@@ -35,7 +35,6 @@ async function run() {
         // ? save data in mongodb {received from client}(by insertOne) // ?
         app.post('/addItems', async (req, res) => {
             const lostFound = req.body;
-            console.log('adding new lostFound', lostFound);
             const result = await lostFoundCollection.insertOne(lostFound);
             res.send(result);
         })
@@ -69,6 +68,19 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await lostFoundCollection.findOne(query);
+            res.send(result);
+        })
+        // update single data specified by id {it will take 3 items id, updated data, options}
+
+        app.put('/updateItem/:id', async (req, res) => {
+            const id = req.params.id;
+            const lostFound = req.body;
+            const updated = {
+                $set: lostFound
+            }
+            const query = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const result = await lostFoundCollection.updateOne(query, updated, options);
             res.send(result);
         })
 
