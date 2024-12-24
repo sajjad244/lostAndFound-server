@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -32,7 +32,7 @@ async function run() {
         const lostFoundCollection = db.collection("lost_found");
         // making collections of mongodb
 
-        // ? save data in mongodb {received from client}
+        // ? save data in mongodb {received from client} // ?
         app.post('/addItems', async (req, res) => {
             const lostFound = req.body;
             console.log('adding new lostFound', lostFound);
@@ -40,21 +40,28 @@ async function run() {
             res.send(result);
         })
 
-        // ? get all data from mongodb
+        // ? get all data from mongodb___[allItems]
         app.get('/allItems', async (req, res) => {
             const result = await lostFoundCollection.find({}).toArray();
             res.send(result);
         })
 
-        // ? get data using email
-        app.get('/myItems', async (req, res) => {
-            const email = req.query.email;
+        // ? get data using email [specific user thats why using params] from mongodb___{get_email}
+        app.get('/myItems/:email', async (req, res) => {
+            const email = req.params.email;
             const query = { email: email };
             const result = await lostFoundCollection.find(query).toArray();
             res.send(result);
         })
 
+        // ? delete post from database for myItems [using id params]____{delete_id}
 
+        app.delete('/myItems/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await lostFoundCollection.deleteOne(query);
+            res.send(result);
+        })
 
 
 
