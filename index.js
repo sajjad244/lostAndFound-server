@@ -92,12 +92,26 @@ async function run() {
         app.post('/addRecovered', async (req, res) => {
             const recovered = req.body;
             const result = await recoveredCollection.insertOne(recovered);
+
+            //! change the status of the item in the lostFoundCollection to "Recovered"
+            const filter = { _id: new ObjectId(recovered.item._id) };
+            const lostFoundUpdate = { $set: { status: "Recovered" } };
+            const updateStatus = await lostFoundCollection.updateOne(filter, lostFoundUpdate);
+
             res.send(result);
         })
 
         // get data
         app.get('/allRecovered', async (req, res) => {
             const result = await recoveredCollection.find({}).toArray();
+            res.send(result);
+        })
+
+        //  get data using email [specific user thats why using params(by find)] from mongodb___{get_email}
+        app.get('/allRecovered/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const result = await recoveredCollection.find(query).toArray();
             res.send(result);
         })
 
