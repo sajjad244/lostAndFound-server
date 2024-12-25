@@ -42,7 +42,17 @@ async function run() {
 
         // ? get all data from mongodb(by find({}).toArray();)___[allItems]
         app.get('/allItems', async (req, res) => {
-            const result = await lostFoundCollection.find({}).toArray();
+            // search all data from mongodb for allData page
+            const search = req.query.search || ""
+            let query = {
+                $or: [
+                    { title: { $regex: search, $options: 'i' } }, // Search in title
+                    { location: { $regex: search, $options: 'i' } } // Search in location
+                ] // $options: 'i' for case insensitive search
+            };
+
+            // search all data from mongodb for allData page
+            const result = await lostFoundCollection.find(query).toArray(); //emn kichu korle find e bosiye dibo
             res.send(result);
         })
 
