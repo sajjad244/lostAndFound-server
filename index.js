@@ -9,7 +9,10 @@ const port = process.env.PORT || 5000;
 
 // jwt token which url will support
 const corsOptions = {
-    origin: ['http://localhost:5173', 'http://localhost:5174'],
+    origin: ['http://localhost:5173',
+        'https://assignment-11-739ee.web.app',
+        'https://assignment-11-739ee.firebaseapp.com'
+    ],
     credentials: true,
     optionalSuccessStatus: 200,
 }
@@ -194,10 +197,10 @@ async function run() {
 
         //    !!! need to delete last   {}___'
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
         // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
-        console.log("Pinged your deployment. You successfully connected to MongoDB!");
+        // await client.db("admin").command({ ping: 1 });
+        // console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
         //    !!! need to delete last   {}___'
     } finally {
