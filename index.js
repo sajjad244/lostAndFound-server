@@ -2,12 +2,22 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const jwt = require('jsonwebtoken'); //web token 
+const cookieParser = require('cookie-parser') //jwt cookie parser
 const app = express();
 const port = process.env.PORT || 5000;
 
+// jwt token which url will support
+const corsOptions = {
+    origin: ['http://localhost:5173', 'http://localhost:5174'],
+    credentials: true,
+    optionalSuccessStatus: 200,
+}
+
 // middlewares
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
+app.use(cookieParser()) //jwt cookie parser
 
 
 // ? start mongodb connection
@@ -23,6 +33,20 @@ const client = new MongoClient(uri, {
     }
 });
 
+// verifyToken
+const verifyToken = (req, res, next) => {
+    const token = req.cookies?.token
+    if (!token) return res.status(401).send({ message: 'unauthorized access' })
+    jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
+        if (err) {
+            return res.status(401).send({ message: 'unauthorized access' })
+        }
+        req.user = decoded
+    })
+
+    next()
+}
+
 // !!___mongodb_Function
 
 async function run() {
@@ -32,6 +56,33 @@ async function run() {
         const lostFoundCollection = db.collection("lost_found");
         const recoveredCollection = db.collection("recovered");
         // making collections of mongodb
+
+        // ! generate token for user jwt
+        app.post('/jwt', (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.SECRET_KEY, { expiresIn: '1h' });
+
+            res.cookie('token', token, {
+                // always same 
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            }).send({ success: true });
+
+
+        })
+
+        //! logout || clear cookie from browser
+        app.get('/logout', async (req, res) => {
+            res
+                .clearCookie('token', {
+                    maxAge: 0,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+                })
+                .send({ success: true })
+        })
+
 
         // ? save data in mongodb {received from client}(by insertOne) // ?
         app.post('/addItems', async (req, res) => {
@@ -57,9 +108,14 @@ async function run() {
         })
 
         // ? get data using email [specific user thats why using params(by find)] from mongodb___{get_email}
-        app.get('/myItems/:email', async (req, res) => {
+        app.get('/myItems/:email', verifyToken, async (req, res) => {
             const email = req.params.email;
             const query = { email: email };
+            const decodedEmail = req.user?.email
+            // console.log('email from token-->', decodedEmail)
+            // console.log('email from params-->', email)
+            if (decodedEmail !== email)
+                return res.status(401).send({ message: 'unauthorized access' })
             const result = await lostFoundCollection.find(query).toArray();
             res.send(result);
         })
@@ -118,9 +174,14 @@ async function run() {
         })
 
         //  get data using email [specific user thats why using params(by find)] from mongodb___{get_email}
-        app.get('/allRecovered/:email', async (req, res) => {
+        app.get('/allRecovered/:email', verifyToken, async (req, res) => {
             const email = req.params.email;
             const query = { email: email };
+            const decodedEmail = req.user?.email
+            // console.log('email from token-->', decodedEmail)
+            // console.log('email from params-->', email)
+            if (decodedEmail !== email)
+                return res.status(401).send({ message: 'unauthorized access' })
             const result = await recoveredCollection.find(query).toArray();
             res.send(result);
         })
